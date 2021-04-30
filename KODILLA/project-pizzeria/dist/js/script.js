@@ -91,6 +91,7 @@
       thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }
 
     initAccordion(){
@@ -157,7 +158,8 @@
           console.log(optionId, option);
 
           // check if there is param with a name of paramId in formData and if it includes iptionId
-          if(formData[paramId] && formData[paramId].includes(optionId)) {
+          const optionSelected = formData[paramId] && formData[paramId].includes(optionId);
+          if(optionSelected) {
             // check if the option is not default
             if(!option.default) {
               // add option price to price variable
@@ -168,6 +170,34 @@
             if(option.default) {
               // reduce price variable
               price -= option.price;
+            }
+          }
+
+          const optionImageSauce = thisProduct.imageWrapper.querySelector('.sauce-' + optionId);
+          const optionImageToppings = thisProduct.imageWrapper.querySelector('.toppings-' + optionId);
+          const optionImageIngredients = thisProduct.imageWrapper.querySelector('.ingredients-' + optionId);
+
+          if(optionImageSauce) {
+            if(optionSelected) {
+              optionImageSauce.classList.add(classNames.menuProduct.imageVisible);
+            } else if(!optionSelected) {
+              optionImageSauce.classList.remove(classNames.menuProduct.imageVisible);
+            }
+          }
+
+          if(optionImageToppings) {
+            if(optionSelected) {
+              optionImageToppings.classList.add(classNames.menuProduct.imageVisible);
+            } else if(!optionSelected) {
+              optionImageToppings.classList.remove(classNames.menuProduct.imageVisible);
+            }
+          }
+
+          if(optionImageIngredients) {
+            if(optionSelected) {
+              optionImageIngredients.classList.add(classNames.menuProduct.imageVisible);
+            } else if(!optionSelected) {
+              optionImageIngredients.classList.remove(classNames.menuProduct.imageVisible);
             }
           }
         }
