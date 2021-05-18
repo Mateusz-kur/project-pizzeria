@@ -1,5 +1,7 @@
 /* global Handlebars, utils, dataSource */ // eslint-disable-line no-unused-vars
 
+//const { utils } = require("stylelint");
+
 {
   'use strict';
 
@@ -167,6 +169,7 @@
       thisProduct.cartButton.addEventListener('click', function(event){
         event.preventDefault();
         thisProduct.processOrder();
+        thisProduct.addToCart();
       });
 
      //console.log('initOrderForm:');
@@ -215,6 +218,7 @@
           thisProduct.toogleImage(optionSelected, '.ingredients-', optionId);
         }
       }
+      thisProduct.priceSingle = price;
       // multiply price by amount
       price *= thisProduct.amountWidget.value;
 
@@ -242,6 +246,56 @@
       thisProduct.amountWidgetElem.addEventListener('updated', function(){
         thisProduct.processOrder();
       });
+    }
+
+    addToCart(){
+      const thisProduct = this;
+
+      app.cart.add(thisProduct.prepareCartProduct(thisProduct));
+    }
+
+    prepareCartProduct(){
+      const thisProduct = this;
+
+      const productSummary = {
+        id: thisProduct.id,
+        name: thisProduct.data.name,
+        amount: thisProduct.amountWidget.value,
+        priceSingle: thisProduct.priceSingle,
+        price: thisProduct.priceSingle * thisProduct.amountWidget.value,
+        params: thisProduct.prepareCartProductParams(thisProduct),
+      };
+
+      return productSummary;
+    }
+
+    prepareCartProductParams(){
+      const thisProduct = this;
+
+      // convert form to object stucture e.g. { sauce: ['tomato'], toppings: ['olives', 'redPappers']}
+      const formData = utils.serializeFormToObject(thisProduct.form);
+      const params = {};
+      // for every category (param)...
+      for(let paramId in thisProduct.data.params) {
+        // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
+        const param = thisProduct.data.params[paramId];
+        
+        params[paramId] = {
+          label: param.label,
+          options: {},
+        }
+
+        // for every option in this category
+        for(let optionId in param.options) {
+          // check if there is param with a name of paramId in formData and if it includes iptionId
+          const optionSelected = formData[paramId] && formData[paramId].includes(optionId);
+          if(optionSelected) {
+            params[paramId].options = formData[paramId];
+          }
+        }
+      }
+
+      return params;
     }
   }
 
@@ -323,6 +377,7 @@
       thisCart.dom = {
         wrapper: element,
         toggleTrigger: element.querySelector(select.cart.toggleTrigger),
+        productList: element.querySelector(select.cart.productList),
       };
     }
 
@@ -332,6 +387,22 @@
       thisCart.dom.toggleTrigger.addEventListener('click', function(){
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
       });
+    }
+
+    add(menuProduct){
+      const thisCart = this;
+
+      const generatedHTML = templates.cartProduct(menuProduct);
+
+      const generatedDOM = utils.createDOMFromHTML(generatedHTML);
+
+      const cartContainer = thisCart.dom.productList;
+
+      cartContainer.appendChild(generatedDOM);
+
+
+
+      console.log('adding product:', menuProduct);
     }
   }
 
