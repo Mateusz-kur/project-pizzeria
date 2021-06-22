@@ -141,7 +141,6 @@ class Cart {
         },
         body: JSON.stringify(payload)
       });
-      console.log('payload.products', payload.products);
     }
   }
   export default Cart;
